@@ -38,11 +38,15 @@ jobs:
         shell: pwsh
         run: |
           $csproj = "src/TripleG3.CIS.Maui.csproj"
-          [xml]$xml = Get-Content $csproj
-          $ver = $xml.Project.PropertyGroup.Version
-          if (-not $ver) { $ver = "1.0.0" }
-          $parts = $ver.Split('.')
-          if ($parts.Length -lt 2) { $base = $ver } else { $base = "$($parts[0]).$($parts[1])" }
+          [xml]$xml = Get-Content -LiteralPath $csproj
+          # Collect all <Version> elements across PropertyGroup nodes
+          $verNode = @($xml.Project.PropertyGroup | ForEach-Object { $_.Version } | Where-Object { $_ }) | Select-Object -First 1
+          $ver = ($verNode | ForEach-Object { $_.ToString() })
+          if ([string]::IsNullOrWhiteSpace($ver)) { $ver = "1.0.0" }
+          # Strip any prerelease/build metadata (e.g., 1.2.3-beta => 1.2.3)
+          $verCore = $ver.Split('-')[0]
+          $parts = $verCore.Split('.')
+          if ($parts.Length -ge 2) { $base = "$($parts[0]).$($parts[1])" } elseif ($parts.Length -eq 1) { $base = $parts[0] } else { $base = "1.0" }
           $ciVer = "$base.${{ github.run_number }}"
           echo "Base csproj version: $ver"
           echo "Computed CI version: $ciVer"
