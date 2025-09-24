@@ -12,9 +12,9 @@ namespace TripleG3.CIS.Maui;
 /// - In UI contexts (MAUI), marshal notifications onto the UI thread if bindings require it.
 /// </remarks>
 /// <example>
-/// Example of implementing <see cref="IState{TState}"/> in a service:
+/// Example of implementing <see cref="IStatePublisher{TState}"/> in a service:
 /// <code><![CDATA[
-/// public class PersonService(IPersonDB personDB) : IPersonService, IState<PersonServiceState>
+/// public class PersonService(IPersonDB personDB) : IPersonService, IStatePublisher<PersonServiceState>
 /// {
 ///     private PersonServiceState state = PersonServiceState.Empty;
 ///
@@ -48,7 +48,7 @@ namespace TripleG3.CIS.Maui;
 /// }
 /// ]]></code>
 /// </example>
-public interface IState<TState>
+public interface IStatePublisher<TState>
 {
     /// <summary>
     /// Gets the current state snapshot.
